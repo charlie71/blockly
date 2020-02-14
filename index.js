@@ -158,6 +158,26 @@ window.addEventListener('load', function load(event) {
 				messageDiv.style.color = '#009000'
 				messageDiv.innerHTML = Blockly.Msg.check + ': OK' + quitDiv
 			})
+		} else if (prog == "esp"){
+			fs.writeFile('./compilation/arduino/ino/sketch.ino', data, function(err){
+				if (err) return console.log(err)
+			})
+			exec('verify_esp.bat ' + carte, {cwd:'./compilation/arduino'}, function(err, stdout, stderr){
+				if (stderr) {
+					rech=RegExp('token')
+					if (rech.test(stderr)){
+						messageDiv.style.color = '#ff0000'
+						messageDiv.innerHTML = Blockly.Msg.error + quitDiv
+					} else {
+						messageDiv.style.color = '#ff0000'
+						messageDiv.innerHTML = err.toString() + quitDiv
+					}
+					return
+				}
+				messageDiv.style.color = '#009000'
+				messageDiv.innerHTML = Blockly.Msg.check + ': OK' + quitDiv
+			})
+			
 		} else {
 			fs.writeFile('./compilation/arduino/ino/sketch.ino', data, function(err){
 				if (err) return console.log(err)
@@ -246,6 +266,15 @@ window.addEventListener('load', function load(event) {
 					uploadOK()
 				})
 			}
+		} else if (prog == "esp") {
+			exec('flash_esp.bat ' + cpu + ' ' + prog + ' '+ com + ' ' + speed, {cwd: './compilation/arduino'} , function(err, stdout, stderr){
+				if (err) {
+					messageDiv.style.color = '#ff0000'
+					messageDiv.innerHTML = err.toString() + quitDiv
+					return
+				}
+				uploadOK()
+			})
 		} else {
 			exec('flash.bat ' + cpu + ' ' + prog + ' '+ com + ' ' + speed, {cwd: './compilation/arduino'} , function(err, stdout, stderr){
 				if (err) {
